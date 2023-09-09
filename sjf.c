@@ -5,11 +5,11 @@
 // Structure to represent a process
 struct Process {
     int id;             // Process ID
-    int arrival_time;   // Arrival Time
-    int burst_time;     // Burst Time
-    int completion_time; // Completion Time
-    int turnaround_time; // Turnaround Time
-    int waiting_time;    // Waiting Time
+    int at;   // Arrival Time
+    int bt;     // Burst Time
+    int ct; // Completion Time
+    int tat; // Turnaround Time
+    int wt;    // Waiting Time
 };
 
 // Function to swap two processes
@@ -24,18 +24,18 @@ void sjf(struct Process processes[], int n) {
     // Sort processes by arrival time and burst time
     for (int i = 0; i < n - 1; i++) {
         for (int j = 0; j < n - i - 1; j++) {
-            if (processes[j].arrival_time > processes[j + 1].arrival_time ||
-                (processes[j].arrival_time == processes[j + 1].arrival_time &&
-                 processes[j].burst_time > processes[j + 1].burst_time)) {
+            if (processes[j].at > processes[j + 1].at ||
+                (processes[j].at == processes[j + 1].at &&
+                 processes[j].bt > processes[j + 1].bt)) {
                 swap(&processes[j], &processes[j + 1]);
             }
         }
     }
 
     int time = 0;                 // Current time
-    int total_completion_time = 0; // Total completion time
-    int total_turnaround_time = 0; // Total turnaround time
-    int total_waiting_time = 0;    // Total waiting time
+    int total_ct = 0; // Total completion time
+    int total_tat = 0; // Total turnaround time
+    int total_wt = 0;    // Total waiting time
     bool executed[n];             // Array to track if a process has been executed
 
     for (int i = 0; i < n; i++) {
@@ -45,13 +45,13 @@ void sjf(struct Process processes[], int n) {
     printf("Process\tArrival Time\tBurst Time\tCompletion Time\tTurnaround Time\tWaiting Time\n");
 
     while (true) {
-        int min_burst_time = INT_MAX;
+        int min_bt = INT_MAX;
         int min_burst_index = -1;
 
         for (int i = 0; i < n; i++) {
-            if (!executed[i] && processes[i].arrival_time <= time &&
-                processes[i].burst_time < min_burst_time) {
-                min_burst_time = processes[i].burst_time;
+            if (!executed[i] && processes[i].at <= time &&
+                processes[i].bt < min_bt) {
+                min_bt = processes[i].bt;
                 min_burst_index = i;
             }
         }
@@ -63,30 +63,30 @@ void sjf(struct Process processes[], int n) {
             // Execute the process
             int i = min_burst_index;
             executed[i] = true;
-            time += processes[i].burst_time;
-            processes[i].completion_time = time;
-            processes[i].turnaround_time = processes[i].completion_time - processes[i].arrival_time;
-            processes[i].waiting_time = processes[i].turnaround_time - processes[i].burst_time;
+            time += processes[i].bt;
+            processes[i].ct = time;
+            processes[i].tat = processes[i].ct - processes[i].at;
+            processes[i].wt = processes[i].tat - processes[i].bt;
 
-            total_completion_time += processes[i].completion_time;
-            total_turnaround_time += processes[i].turnaround_time;
-            total_waiting_time += processes[i].waiting_time;
+            total_ct += processes[i].ct;
+            total_tat += processes[i].tat;
+            total_wt += processes[i].wt;
 
-            printf("P%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", processes[i].id, processes[i].arrival_time,
-                   processes[i].burst_time, processes[i].completion_time,
-                   processes[i].turnaround_time, processes[i].waiting_time);
+            printf("P%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", processes[i].id, processes[i].at,
+                   processes[i].bt, processes[i].ct,
+                   processes[i].tat, processes[i].wt);
         }
 
-        if (total_completion_time == n) {
+        if (total_ct == n) {
             break; // All processes have completed
         }
     }
 
-    float avg_turnaround_time = (float)total_turnaround_time / n;
-    float avg_waiting_time = (float)total_waiting_time / n;
+    float avg_tat = (float)total_tat / n;
+    float avg_wt = (float)total_wt / n;
 
-    printf("\nAverage Turnaround Time: %.2f\n", avg_turnaround_time);
-    printf("Average Waiting Time: %.2f\n", avg_waiting_time);
+    printf("\nAverage Turnaround Time: %.2f\n", avg_tat);
+    printf("Average Waiting Time: %.2f\n", avg_wt);
 }
 
 int main() {
@@ -101,9 +101,9 @@ int main() {
         processes[i].id = i + 1;
         printf("Process P%d:\n", i + 1);
         printf("Arrival Time: ");
-        scanf("%d", &processes[i].arrival_time);
+        scanf("%d", &processes[i].at);
         printf("Burst Time: ");
-        scanf("%d", &processes[i].burst_time);
+        scanf("%d", &processes[i].bt);
     }
 
     sjf(processes, n);

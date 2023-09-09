@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdbool.h>
+#include <limits.h>
 
 // Structure to represent a process
 struct Process {
@@ -34,26 +36,50 @@ void sjf(struct Process processes[], int n) {
     int total_completion_time = 0; // Total completion time
     int total_turnaround_time = 0; // Total turnaround time
     int total_waiting_time = 0;    // Total waiting time
+    bool executed[n];             // Array to track if a process has been executed
+
+    for (int i = 0; i < n; i++) {
+        executed[i] = false;
+    }
 
     printf("Process\tArrival Time\tBurst Time\tCompletion Time\tTurnaround Time\tWaiting Time\n");
 
-    for (int i = 0; i < n; i++) {
-        if (time < processes[i].arrival_time) {
-            time = processes[i].arrival_time;
+    while (true) {
+        int min_burst_time = INT_MAX;
+        int min_burst_index = -1;
+
+        for (int i = 0; i < n; i++) {
+            if (!executed[i] && processes[i].arrival_time <= time &&
+                processes[i].burst_time < min_burst_time) {
+                min_burst_time = processes[i].burst_time;
+                min_burst_index = i;
+            }
         }
 
-        time += processes[i].burst_time;
-        processes[i].completion_time = time;
-        processes[i].turnaround_time = processes[i].completion_time - processes[i].arrival_time;
-        processes[i].waiting_time = processes[i].turnaround_time - processes[i].burst_time;
+        if (min_burst_index == -1) {
+            // No process can be executed at this time
+            time++;
+        } else {
+            // Execute the process
+            int i = min_burst_index;
+            executed[i] = true;
+            time += processes[i].burst_time;
+            processes[i].completion_time = time;
+            processes[i].turnaround_time = processes[i].completion_time - processes[i].arrival_time;
+            processes[i].waiting_time = processes[i].turnaround_time - processes[i].burst_time;
 
-        total_completion_time += processes[i].completion_time;
-        total_turnaround_time += processes[i].turnaround_time;
-        total_waiting_time += processes[i].waiting_time;
+            total_completion_time += processes[i].completion_time;
+            total_turnaround_time += processes[i].turnaround_time;
+            total_waiting_time += processes[i].waiting_time;
 
-        printf("P%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", processes[i].id, processes[i].arrival_time,
-               processes[i].burst_time, processes[i].completion_time,
-               processes[i].turnaround_time, processes[i].waiting_time);
+            printf("P%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", processes[i].id, processes[i].arrival_time,
+                   processes[i].burst_time, processes[i].completion_time,
+                   processes[i].turnaround_time, processes[i].waiting_time);
+        }
+
+        if (total_completion_time == n) {
+            break; // All processes have completed
+        }
     }
 
     float avg_turnaround_time = (float)total_turnaround_time / n;
@@ -70,7 +96,7 @@ int main() {
 
     struct Process processes[n];
 
-   printf("Enter arrival time and burst time for each process:\n");
+    printf("Enter arrival time and burst time for each process:\n");
     for (int i = 0; i < n; i++) {
         processes[i].id = i + 1;
         printf("Process P%d:\n", i + 1);

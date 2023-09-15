@@ -1,26 +1,39 @@
 #include <stdio.h>
 
 // Function to perform Shortest Job First scheduling
+void sjf(int n);
+
+int main() {
+    int n;
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    sjf(n);
+
+    return 0;
+}
+
+// Function to perform Shortest Job First scheduling
 void sjf(int n) {
-    int bt[n]; 
-    int at[n];
-    int ct[n]; 
-    int tat[n]; 
-    int wt[n]; 
+    int processes[n]; // Array to store burst time for each process
+    int arrival_time[n]; // Array to store arrival time for each process
+    int completion_time[n]; // Array to store completion time for each process
+    int turnaround_time[n]; // Array to store turnaround time for each process
+    int waiting_time[n]; // Array to store waiting time for each process
 
     // Input burst time and arrival time for each process
     for (int i = 0; i < n; i++) {
         printf("Process P%d:\n", i + 1);
         printf("Arrival Time: ");
-        scanf("%d", &at[i]);
+        scanf("%d", &arrival_time[i]);
         printf("Burst Time: ");
-        scanf("%d", &bt[i]);
+        scanf("%d", &processes[i]);
     }
 
-    int time = 0;
-    int total_ct = 0; 
-    int total_tat = 0;
-    int total_wt = 0; 
+    int time = 0; // Current time
+    int total_ct = 0; // Total completion time
+    int total_tat = 0; // Total turnaround time
+    int total_wt = 0; // Total waiting time
 
     int executed[n]; // Array to track if a process has been executed
 
@@ -30,13 +43,15 @@ void sjf(int n) {
 
     printf("Process\tArrival Time\tBurst Time\tCompletion Time\tTurnaround Time\tWaiting Time\n");
 
-    while (1) {
+    int completed_processes = 0; // Track the number of completed processes
+
+    while (completed_processes < n) {
         int min_bt = __INT_MAX__;
         int min_burst_index = -1;
 
         for (int i = 0; i < n; i++) {
-            if (!executed[i] && at[i] <= time && bt[i] < min_bt) {
-                min_bt = bt[i];
+            if (!executed[i] && arrival_time[i] <= time && processes[i] < min_bt) {
+                min_bt = processes[i];
                 min_burst_index = i;
             }
         }
@@ -48,21 +63,19 @@ void sjf(int n) {
             // Execute the process
             int i = min_burst_index;
             executed[i] = 1;
-            time += bt[i];
-            ct[i] = time;
-            tat[i] = ct[i] - at[i];
-            wt[i] = tat[i] - bt[i];
+            time += processes[i];
+            completion_time[i] = time;
+            turnaround_time[i] = completion_time[i] - arrival_time[i];
+            waiting_time[i] = turnaround_time[i] - processes[i];
 
-            total_ct += ct[i];
-            total_tat += tat[i];
-            total_wt += wt[i];
+            total_ct++;
+            total_tat += turnaround_time[i];
+            total_wt += waiting_time[i];
+            completed_processes++;
 
-            printf("P%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", i + 1, at[i], bt[i], ct[i],
-                   tat[i], wt[i]);
-        }
-
-        if (total_ct == n) {
-            break; // All bt have completed
+            printf("P%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", i + 1, arrival_time[i],
+                   processes[i], completion_time[i],
+                   turnaround_time[i], waiting_time[i]);
         }
     }
 
@@ -72,15 +85,3 @@ void sjf(int n) {
     printf("\nAverage Turnaround Time: %.2f\n", avg_tat);
     printf("Average Waiting Time: %.2f\n", avg_wt);
 }
-
-int main() {
-    int n;
-    printf("Enter the number of process: ");
-    scanf("%d", &n);
-
-    sjf(n);
-
-    return 0;
-}
-
-

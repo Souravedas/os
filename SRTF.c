@@ -1,20 +1,6 @@
 #include <stdio.h>
 #include <limits.h>
 
-void srtf(int n);
-
-int main() {
-    int n;
-
-    printf("Enter the number of processes: ");
-    scanf("%d", &n);
-
-    srtf(n);
-
-    return 0;
-}
-
-
 void srtf(int n) {
     int at[n]; 
     int bt[n]; 
@@ -41,7 +27,6 @@ void srtf(int n) {
     while (completed < n) {
         int min_rt = INT_MAX;
 
-        // Find the process with the minimum remaining time
         for (int i = 0; i < n; i++) {
             if (at[i] <= current_time && rt[i] < min_rt && rt[i] > 0) {
                 min_rt = rt[i];
@@ -77,3 +62,17 @@ void srtf(int n) {
     printf("\nAverage Turnaround Time: %.2f", avg_tat);
     printf("\nAverage Waiting Time: %.2f\n", avg_wt);
 }
+
+int main() {
+    int n;
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+
+    srtf(n);
+
+    return 0;
+}
+
+
+
